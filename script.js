@@ -11,7 +11,7 @@
 // Global Variables
 
 var httpRequest = false;
-var countrySel;
+var countrySel = null;
 
 // Function to create an XHR object
 function getRequestObject() {
@@ -20,6 +20,7 @@ function getRequestObject() {
     } catch (requestError) {
         document.getElementById("zipset").style.visibility = "visible";
         return false;
+        // Remove event listeners if there is an error
         var germany = document.getElementById("germany");
         var us = document.getElementById("us");
         var zip = document.getElementById("zip").value;
@@ -27,18 +28,11 @@ function getRequestObject() {
             germany.removeEventListener("click", checkButtons, false);
             us.removeEventListener("click", checkButtons, false);
             zip.removeEventListener("keyup", checkInput, false)
-        } else if (zip.attachEvent){
+        } else if (zip.attachEvent) {
             germany.detachEvent("onclick", checkButtons);
             us.detachEvent("onclick", checkButtons);
             zip.detachEvent("onkeyup", checkInput)
         }
-    }
-    document.getElementById("csset").style.visibility = "visible";
-    var zip = document.getElementById("zip");
-    if (zip.addEventListener) {
-        zip.removeEventListener("keyup", checkInput, false)
-    } else if (zip.attachEvent) {
-        zip.detachEvent("onkeyup", checkInput);
     }
     return httpRequest;
 }
@@ -94,16 +88,17 @@ function getLocation() {
 function displayData() {
     if (httpRequest.readyState === 4 && httpRequest.status === 200) {
         var resultData = JSON.parse(httpRequest.responseText);
-        console.log(resultData);
+        var city = document.getElementById("city");
+        var state = document.getElementById("state");
+        city.value = resultData.places[0]["place name"];
+        state.value = resultData.places[0]["state abbreviation"];
+        document.getElementById("zip").blur();
+        document.getElementById("csset").style.visibility = "visible";
     }
-    var city = document.getElementById("city");
-    var state = document.getElementById("state");
-    city.value = resultData.places[0]["place name"];
-    state.value = resultData.places[0]["state abbreviation"];
-    document.getElementById("zip").blur();
-    document.getElementById("csset").style.visibility = "visible";
+
 }
 
+// Added event listeners for buttons
 var germany = document.getElementById("germany");
 var us = document.getElementById("us");
 if (us.addEventListener) {
